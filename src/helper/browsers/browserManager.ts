@@ -1,7 +1,7 @@
 import { LaunchOptions, chromium, firefox, webkit } from '@playwright/test';
 
 const options: LaunchOptions = {
-  headless: !true,
+  headless: true,
 };
 export const invokeBrowser = () => {
   const browserType = process.env.BROWSER;
