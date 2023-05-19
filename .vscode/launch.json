@@ -1,0 +1,44 @@
+/* {
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Cucumber.js",
+      "type": "node",
+      "request": "launch",
+      "program": "./node_modules/.bin/cucumber-js",
+      "env":{
+              "NODE_PATH": "test/"
+            },
+      "args": [
+        "run-script",
+        "debug"
+      ],
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--inspect-brk"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+} */
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+    "name": "NPM Cukes",
+    "type": "node",
+    "request": "launch",
+    "console": "integratedTerminal",
+    "program": "node_modules/cucumber/bin/cucumber-js",
+    "args": [
+        "src/tests/features/**/*.feature",
+        "-r",
+        "src/tests/steps/**/*",
+        "--tags",
+        "@positive"
+    ]
+    }
+  ]
+}
