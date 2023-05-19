@@ -13,7 +13,7 @@
     "winston": "^3.8.2"
   },
   "scripts": {
-    "test": "cross-env ENV=prod cucumber-js test || true",
+    "test": "cross-env ENV=prod cucumber-js test --format summary --format progress || true",
     "posttest": "npx ts-node src/helper/report.ts",
     "test:failed": "cucumber-js -p rerun @rerun.txt"
   },
