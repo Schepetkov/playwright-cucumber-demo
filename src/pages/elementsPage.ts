@@ -7,13 +7,18 @@ export default class ElementsPage extends BasePage {
     super(page);
   }
 
-  public WebTablesInputFields = {
-    FirstName: '#firstName',
-    LastName: '#lastName',
-    Age: '#age',
-    Email: '#userEmail',
-    Salary: '#salary',
-    Department: '#department',
+  public PageElements = {
+    FirstNameInput: '#firstName',
+    LastNameInput: '#lastName',
+    AgeInput: '#age',
+    EmailInput: '#userEmail',
+    SalaryInput: '#salary',
+    DepartmentInput: '#department',
+    GridTableDiv: 'div.rt-table[role="grid"]',
+    RowGroupDiv: 'div.rt-tr-group[role="rowgroup"]',
+    TableCellDiv: 'div.rt-td',
+    RowsWithNonBreakingSpace: '&nbsp;',
+    BrokenImageElement: 'img[src="/images/Toolsqa_1.jpg"]',
   };
 
   // TODO: move to base class
@@ -23,7 +28,7 @@ export default class ElementsPage extends BasePage {
 
   async GetTableGrid(): Promise<ElementHandle<SVGElement | HTMLElement>> {
     const tableGrid = await this.page.waitForSelector(
-      'div.rt-table[role="grid"]',
+      this.PageElements.GridTableDiv,
     );
 
     return tableGrid;
@@ -34,20 +39,18 @@ export default class ElementsPage extends BasePage {
     ElementHandle<SVGElement | HTMLElement>[]
   > {
     const tableDiv = await this.GetTableGrid();
-
-    // Find all <div class="rt-tr-group" role="rowgroup"> elements inside the table
-    const rowGroupDivs = await tableDiv.$$('div.rt-tr-group[role="rowgroup"]');
+    const rowGroupDivs = await tableDiv.$$(this.PageElements.RowGroupDiv);
 
     const filteredRowGroupDivs: ElementHandle<SVGElement | HTMLElement>[] = [];
     for (const rowGroupDiv of rowGroupDivs) {
-      const tdElements = await rowGroupDiv.$$('div.rt-td');
+      const tdElements = await rowGroupDiv.$$(this.PageElements.TableCellDiv);
       let isEmptyRow = false;
 
       for (const tdElement of tdElements) {
         const spanElement = await tdElement.$('span');
         const spanContent = await spanElement?.innerHTML();
 
-        if (spanContent === '&nbsp;') {
+        if (spanContent === this.PageElements.RowsWithNonBreakingSpace) {
           isEmptyRow = true;
           break;
         }
@@ -67,7 +70,7 @@ export default class ElementsPage extends BasePage {
     const filteredRowGroupDivs = await this.GetAllValidWebTablesRows();
 
     for (const row of filteredRowGroupDivs) {
-      const cellElements = await row.$$('div.rt-td');
+      const cellElements = await row.$$(this.PageElements.TableCellDiv);
       for (const cellElement of cellElements) {
         const cellText = await cellElement.textContent();
         if (cellText.trim() !== '' && cellText.trim() === firstName) {
@@ -83,7 +86,9 @@ export default class ElementsPage extends BasePage {
     const filteredRowGroupDivs = await this.GetAllValidWebTablesRows();
     const lastRowGroupDiv =
       filteredRowGroupDivs[filteredRowGroupDivs.length - 1];
-    const cellElements = await lastRowGroupDiv.$$('div.rt-td');
+    const cellElements = await lastRowGroupDiv.$$(
+      this.PageElements.TableCellDiv,
+    );
     return cellElements;
   }
 }

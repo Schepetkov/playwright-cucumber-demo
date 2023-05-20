@@ -1,13 +1,16 @@
-import { ElementHandle, Page } from '@playwright/test';
+import { Page } from '@playwright/test';
 import BasePage from './basePage';
 import { testManager } from '../hooks/playwright';
 
 export default class FormsPage extends BasePage {
+  private FooterHideCSSRule: string =
+    'footer, footer span { display: none !important; }';
+
   constructor(protected page: Page) {
     super(page);
   }
 
-  public AutomationPracticeFormInputFieldNames = {
+  public TableResponsiveElements = {
     StudentName: 'Student Name',
     StudentEmail: 'Student Email',
     Gender: 'Gender',
@@ -20,31 +23,33 @@ export default class FormsPage extends BasePage {
     StateAndCity: 'State and City',
   };
 
-  public AutomationPracticeFormElements = {
-    FirstName: '#firstName',
-    LastName: '#lastName',
-    Email: '#userEmail',
-    MobileNumber: '#userNumber',
-    DateOfBirth: '#dateOfBirthInput',
-    Subjects: '#subjectsInput',
-    CurrentAddress: '#currentAddress',
-    State: '#state',
-    City: '#city',
+  public PageElements = {
+    FirstNameInput: '#firstName',
+    LastNameInput: '#lastName',
+    EmailInput: '#userEmail',
+    MobileNumberInput: '#userNumber',
+    DateOfBirthInput: '#dateOfBirthInput',
+    SubjectsInput: '#subjectsInput',
+    CurrentAddressInput: '#currentAddress',
+    StateInput: '#state',
+    CityInput: '#city',
     SubmitButton: '#submit',
-    Picture: '#uploadPicture',
+    UploadPictureInput: '#uploadPicture',
     ImagePathName: 'Toolsqa.jpg',
-    datepickerMonthSelectClass: 'react-datepicker__month-select',
-    datepickerYearSelectClass: 'react-datepicker__year-select',
-    datepickerDaySelectLocator:
+    DatepickerMonthSelectClass: 'react-datepicker__month-select',
+    DatepickerYearSelectClass: 'react-datepicker__year-select',
+    DatepickerDaySelectLocator:
       '.react-datepicker__day.react-datepicker__day--0',
     SubmitButtonFooterOverlayLocator: '.mt-4.justify-content-end.row',
+    ResponsiveTableLocator: '.table-responsive table',
+    AdPlusAnchorElement: '#adplus-anchor',
   };
 
   async collectPracticeFormTableFilledData() {
-    await this.page.waitForSelector('.table-responsive table');
-    const table = await this.page.$('.table-responsive table');
+    await this.page.waitForSelector(this.PageElements.ResponsiveTableLocator);
+    const table = await this.page.$(this.PageElements.ResponsiveTableLocator);
     const data: { [key: string]: string } = {};
-    const rows = await table.$$('tbody tr');
+    const rows = await table.$$(this.tableBodyRows);
     for (const row of rows) {
       const [keyElement, valueElement] = await row.$$('td');
       const key = await keyElement.innerText();
@@ -65,33 +70,31 @@ export default class FormsPage extends BasePage {
 
   async hideFooter() {
     await testManager.page.addStyleTag({
-      content: 'footer, footer span { display: none !important; }',
+      content: this.FooterHideCSSRule,
     });
 
     testManager.logger.info('HideFooter()');
   }
 
   async closeFooterAd() {
-    await this.page.waitForSelector('#adplus-anchor');
-    await this.page.evaluate(() => {
-      const parentElement = document.querySelector('#adplus-anchor');
+    await this.page.waitForSelector(this.PageElements.AdPlusAnchorElement);
+
+    const footerAdId = this.PageElements.AdPlusAnchorElement;
+    await this.page.evaluate((footerAdId: string) => {
+      const parentElement = document.querySelector(footerAdId);
       if (parentElement) {
         parentElement.remove();
       }
-    });
+    }, footerAdId);
 
     testManager.logger.info('CloseFooterAd()');
   }
 
   async uploadPicture() {
-    await this.page.waitForSelector(
-      this.AutomationPracticeFormElements.Picture,
-    );
+    await this.page.waitForSelector(this.PageElements.UploadPictureInput);
     const fileInput = await testManager.page.$(
-      this.AutomationPracticeFormElements.Picture,
+      this.PageElements.UploadPictureInput,
     );
-    await fileInput.setInputFiles(
-      this.AutomationPracticeFormElements.ImagePathName,
-    );
+    await fileInput.setInputFiles(this.PageElements.ImagePathName);
   }
 }

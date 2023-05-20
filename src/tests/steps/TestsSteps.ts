@@ -32,12 +32,6 @@ interface CustomWorld extends World {
 
 Given('Go to url', async function () {
   const basePage = new BasePage(testManager.page);
-
-  //await testManager.page.route('**/', (request) => {
-  // return request.request().resourceType() === 'image'
-  // ? request.abort()
-  //: request.continue();
-  //});
   await basePage.goto('https://demoqa.com/');
   testManager.logger.info('I navigate to app');
 });
@@ -70,7 +64,7 @@ Then('Enter below inupt field', async function (dataTable: DataTable) {
   if (data[1][0]) {
     this.userInupt.firstName = data[1][0];
     await testManager.page.fill(
-      elementsPage.WebTablesInputFields.FirstName,
+      elementsPage.PageElements.FirstNameInput,
       this.userInupt.firstName,
     );
   }
@@ -79,7 +73,7 @@ Then('Enter below inupt field', async function (dataTable: DataTable) {
   if (data[1][1]) {
     this.userInupt.lastName = data[1][1];
     await testManager.page.fill(
-      elementsPage.WebTablesInputFields.LastName,
+      elementsPage.PageElements.LastNameInput,
       this.userInupt.lastName,
     );
   }
@@ -88,7 +82,7 @@ Then('Enter below inupt field', async function (dataTable: DataTable) {
   if (data[1][2]) {
     this.userInupt.age = data[1][2];
     await testManager.page.fill(
-      elementsPage.WebTablesInputFields.Age,
+      elementsPage.PageElements.AgeInput,
       this.userInupt.age,
     );
   }
@@ -97,7 +91,7 @@ Then('Enter below inupt field', async function (dataTable: DataTable) {
   if (data[1][3]) {
     this.userInupt.email = data[1][3];
     await testManager.page.fill(
-      elementsPage.WebTablesInputFields.Email,
+      elementsPage.PageElements.EmailInput,
       this.userInupt.email,
     );
   }
@@ -106,7 +100,7 @@ Then('Enter below inupt field', async function (dataTable: DataTable) {
   if (data[1][4]) {
     this.userInupt.salary = data[1][4];
     await testManager.page.fill(
-      elementsPage.WebTablesInputFields.Salary,
+      elementsPage.PageElements.SalaryInput,
       this.userInupt.salary,
     );
   }
@@ -115,7 +109,7 @@ Then('Enter below inupt field', async function (dataTable: DataTable) {
   if (data[1][5]) {
     this.userInupt.department = data[1][5];
     await testManager.page.fill(
-      elementsPage.WebTablesInputFields.Department,
+      elementsPage.PageElements.DepartmentInput,
       this.userInupt.department,
     );
   }
@@ -125,6 +119,7 @@ Then('Validate user data in web table', async function () {
   const elementsPage = new ElementsPage(testManager.page);
   const cellElements = await elementsPage.GetLastCreatedDataInWebTables();
 
+  //const cellsTest = elementsPage.extractNonEmptyCellTexts(cellElements);
   // TODO: move to separate function
   let cellsTest = [];
   for (const cellElement of cellElements) {
@@ -186,8 +181,10 @@ Then('Validate changed user data in web table', async function () {
 });
 
 Then('Validate image is not broken', async function () {
+  const elementsPage = new ElementsPage(testManager.page);
+
   const imageElement = await testManager.page.$(
-    'img[src="/images/Toolsqa_1.jpg"]',
+    elementsPage.PageElements.BrokenImageElement,
   );
   if (!imageElement) {
     testManager.logger.info('Image failed to load');
@@ -233,77 +230,71 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
 
     // Save Image for next validation
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.Picture
-    ] = formsPage.AutomationPracticeFormElements.ImagePathName;
+      formsPage.TableResponsiveElements.Picture
+    ] = formsPage.PageElements.ImagePathName;
   }
 
-  const FirstName = data[1][0];
-  if (FirstName) {
+  const firstName = data[1][0];
+  if (firstName) {
     await testManager.page.fill(
-      formsPage.AutomationPracticeFormElements.FirstName,
-      FirstName,
+      formsPage.PageElements.FirstNameInput,
+      firstName,
     );
     testManager.logger.info(
-      `fill: ${FirstName} in ${formsPage.AutomationPracticeFormElements.FirstName}`,
+      `fill: ${firstName} in ${formsPage.PageElements.FirstNameInput}`,
     );
   }
 
-  const LastName = data[1][1];
-  if (LastName) {
-    await testManager.page.fill(
-      formsPage.AutomationPracticeFormElements.LastName,
-      LastName,
-    );
+  const lastName = data[1][1];
+  if (lastName) {
+    await testManager.page.fill(formsPage.PageElements.LastNameInput, lastName);
     testManager.logger.info(
-      `fill: ${LastName} in ${formsPage.AutomationPracticeFormElements.LastName}`,
+      `fill: ${lastName} in ${formsPage.PageElements.LastNameInput}`,
     );
   }
 
   // Save student name for next validation
   this.practiceFormInputFields.data[
-    formsPage.AutomationPracticeFormInputFieldNames.StudentName
-  ] = `${FirstName} ${LastName}`;
+    formsPage.TableResponsiveElements.StudentName
+  ] = `${firstName} ${lastName}`;
 
-  const Email = data[1][2];
-  if (Email) {
+  const email = data[1][2];
+  if (email) {
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.StudentEmail
-    ] = Email;
-    await testManager.page.fill(
-      formsPage.AutomationPracticeFormElements.Email,
-      Email,
-    );
+      formsPage.TableResponsiveElements.StudentEmail
+    ] = email;
+    await testManager.page.fill(formsPage.PageElements.EmailInput, email);
     testManager.logger.info(
-      `fill: ${Email} in ${formsPage.AutomationPracticeFormElements.Email}`,
+      `fill: ${email} in ${formsPage.PageElements.EmailInput}`,
     );
   }
 
-  const Gender = data[1][3];
-  if (Gender) {
+  const gender = data[1][3];
+  if (gender) {
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.Gender
-    ] = Gender;
+      formsPage.TableResponsiveElements.Gender
+    ] = gender;
     await testManager.page
-      .getByText(Gender, {
+      .getByText(gender, {
         exact: true,
       })
       .click();
     testManager.logger.info(
-      `Picked: ${Gender} in ${formsPage.AutomationPracticeFormInputFieldNames.Gender}`,
+      `picked: ${gender} in ${formsPage.TableResponsiveElements.Gender}`,
     );
   }
 
-  const Mobile = data[1][4];
-  if (Mobile) {
+  const mobile = data[1][4];
+  if (mobile) {
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.MobileNumber
-    ] = Mobile;
+      formsPage.TableResponsiveElements.MobileNumber
+    ] = mobile;
     await testManager.page.fill(
-      formsPage.AutomationPracticeFormElements.MobileNumber,
-      Mobile,
+      formsPage.PageElements.MobileNumberInput,
+      mobile,
     );
     testManager.logger.info(
-      `fill: ${Mobile} in ${formsPage.AutomationPracticeFormElements.MobileNumber}`,
+      `fill: ${mobile} in ${formsPage.PageElements.MobileNumberInput}`,
     );
   }
 
@@ -314,102 +305,95 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
 
   if (dateOfBirth && mounOfBirth && yearOfBirth) {
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.DateOfBirth
+      formsPage.TableResponsiveElements.DateOfBirth
     ] = birthData;
 
-    await formsPage.waitAndClick(
-      formsPage.AutomationPracticeFormElements.DateOfBirth,
-    );
+    await formsPage.waitAndClick(formsPage.PageElements.DateOfBirthInput);
 
     await formsPage.selectOptionByClass(
-      formsPage.AutomationPracticeFormElements.datepickerMonthSelectClass,
+      formsPage.PageElements.DatepickerMonthSelectClass,
       mounOfBirth,
     );
 
     await formsPage.selectOptionByClass(
-      formsPage.AutomationPracticeFormElements.datepickerYearSelectClass,
+      formsPage.PageElements.DatepickerYearSelectClass,
       yearOfBirth,
     );
 
     await formsPage.waitAndClick(
-      `${formsPage.AutomationPracticeFormElements.datepickerDaySelectLocator}${dateOfBirth}`,
+      `${formsPage.PageElements.DatepickerDaySelectLocator}${dateOfBirth}`,
     );
 
-    testManager.logger.info(`Choose: ${birthData} in datepicker`);
+    testManager.logger.info(`choose: ${birthData} in datepicker`);
   }
 
-  const Subjects = data[1][8];
-  if (Subjects) {
+  const subjects = data[1][8];
+  if (subjects) {
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.Subjects
-    ] = Subjects;
-    await testManager.page.fill(
-      formsPage.AutomationPracticeFormElements.Subjects,
-      Subjects,
-    );
+      formsPage.TableResponsiveElements.Subjects
+    ] = subjects;
+    await testManager.page.fill(formsPage.PageElements.SubjectsInput, subjects);
     testManager.logger.info(
-      `fill: ${Subjects} in ${formsPage.AutomationPracticeFormElements.Subjects}`,
+      `fill: ${subjects} in ${formsPage.PageElements.SubjectsInput}`,
     );
     await testManager.page.keyboard.press('Tab');
   }
 
-  const Hobbies = data[1][9];
-  if (Hobbies) {
+  const hobbies = data[1][9];
+  if (hobbies) {
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.Hobbies
-    ] = Hobbies;
+      formsPage.TableResponsiveElements.Hobbies
+    ] = hobbies;
 
-    await testManager.page.getByText(Hobbies).click();
+    await testManager.page.getByText(hobbies).click();
     testManager.logger.info(
-      `Picked: ${Hobbies} in ${formsPage.AutomationPracticeFormInputFieldNames.Hobbies}`,
+      `picked: ${hobbies} in ${formsPage.TableResponsiveElements.Hobbies}`,
     );
   }
 
-  const CurrentAddress = data[1][10];
-  if (CurrentAddress) {
+  const currentAddress = data[1][10];
+  if (currentAddress) {
     this.practiceFormInputFields.data[
-      formsPage.AutomationPracticeFormInputFieldNames.Address
-    ] = CurrentAddress;
+      formsPage.TableResponsiveElements.Address
+    ] = currentAddress;
 
     await testManager.page.fill(
-      formsPage.AutomationPracticeFormElements.CurrentAddress,
-      CurrentAddress,
+      formsPage.PageElements.CurrentAddressInput,
+      currentAddress,
     );
     testManager.logger.info(
-      `fill: ${CurrentAddress} in ${formsPage.AutomationPracticeFormElements.CurrentAddress}`,
+      `fill: ${currentAddress} in ${formsPage.PageElements.CurrentAddressInput}`,
     );
   }
 
-  const State = data[1][11];
-  if (State) {
-    await formsPage.waitAndClick(
-      formsPage.AutomationPracticeFormElements.State,
-    );
+  const state = data[1][11];
+  if (state) {
+    await formsPage.waitAndClick(formsPage.PageElements.StateInput);
     await testManager.page
-      .getByText(State, {
+      .getByText(state, {
         exact: true,
       })
       .click();
 
     testManager.logger.info(
-      `Choose: ${State} in ${formsPage.AutomationPracticeFormElements.State}}`,
+      `choose: ${state} in ${formsPage.PageElements.StateInput}}`,
     );
   }
 
-  const City = data[1][12];
-  if (City) {
-    await formsPage.waitAndClick(formsPage.AutomationPracticeFormElements.City);
+  const city = data[1][12];
+  if (city) {
+    await formsPage.waitAndClick(formsPage.PageElements.CityInput);
 
-    await testManager.page.getByText(City, { exact: true }).click();
+    await testManager.page.getByText(city, { exact: true }).click();
   }
 
   this.practiceFormInputFields.data[
-    formsPage.AutomationPracticeFormInputFieldNames.StateAndCity
-  ] = `${State} ${City}`;
+    formsPage.TableResponsiveElements.StateAndCity
+  ] = `${state} ${city}`;
 
   const parentSelector =
-    formsPage.AutomationPracticeFormElements.SubmitButtonFooterOverlayLocator;
-  const submitId = formsPage.AutomationPracticeFormElements.SubmitButton;
+    formsPage.PageElements.SubmitButtonFooterOverlayLocator;
+  const submitId = formsPage.PageElements.SubmitButton;
   // Evaluate JavaScript to click the button
   await testManager.page.evaluate((parentSelector) => {
     const parentElement = document.querySelector(parentSelector);
@@ -417,5 +401,5 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     button.dispatchEvent(new MouseEvent('click'));
   }, parentSelector);
 
-  testManager.logger.info(`Pressed: ${submitId} button`);
+  testManager.logger.info(`pressed: ${submitId} button`);
 });

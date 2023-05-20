@@ -5,10 +5,13 @@ export default class HomePage extends BasePage {
   constructor(protected page: Page) {
     super(page);
   }
+  public PageElements = {
+    categoryCardsDiv: 'div.category-cards',
+  };
 
   async clickToCardByName(name: string) {
     const categoryCardsDiv = await this.page.waitForSelector(
-      'div.category-cards',
+      this.PageElements.categoryCardsDiv,
     );
     const items = await categoryCardsDiv.$$('div');
     const filteredItems = await Promise.all(
