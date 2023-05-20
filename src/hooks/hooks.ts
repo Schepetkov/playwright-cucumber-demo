@@ -22,6 +22,7 @@ Before(async function ({ pickle }) {
       dir: 'test-results/videos',
     },
   });
+
   const page = await context.newPage();
   testManager.page = page;
   testManager.logger = createLogger(options(scenarioName));

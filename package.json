@@ -21,8 +21,12 @@
     "type": "git",
     "url": "git+https://github.com/Schepetkov/playwright-cucumber-demo.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cucumber",
+    "cucumber - TS",
+    "playwright-cucumber"
+  ],
+  "author": "Dmitrii Shchepetkov",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Schepetkov/playwright-cucumber-demo/issues"
