@@ -5,6 +5,7 @@ export default class BasePage {
   listitem: 'listitem' = 'listitem';
   domcontentloaded: 'domcontentloaded' = 'domcontentloaded';
   visibleState: 'visible' = 'visible';
+  tableBodyRows: string = 'tbody tr';
 
   constructor(protected page: Page) {
     this.page = page;
