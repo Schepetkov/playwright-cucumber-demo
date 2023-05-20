@@ -222,30 +222,19 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     };
   }
 
-  //TODO: Refactoring
   {
-    // Wait for the parent element to appear on the page
-    await testManager.page.waitForSelector('#adplus-anchor');
-    await testManager.page.evaluate(() => {
-      const parentElement = document.querySelector('#adplus-anchor');
-      if (parentElement) {
-        parentElement.remove();
-      }
-    });
+    // It can be in a different place, bugs on website
+    try {
+      await formsPage.closeFooterAd();
+    } catch {}
 
-    // hide footer
-    await testManager.page.addStyleTag({
-      content: 'footer, footer span { display: none !important; }',
-    });
+    await formsPage.hideFooter();
+    await formsPage.uploadPicture();
 
-    //uploadPicture
-    await testManager.page.waitForSelector('#uploadPicture'); // Wait for the file input element to be available
-    const fileInput = await testManager.page.$('#uploadPicture');
-    await fileInput.setInputFiles('Toolsqa.jpg');
-
+    // Save Image for next validation
     this.practiceFormInputFields.data[
       formsPage.AutomationPracticeFormInputFieldNames.Picture
-    ] = 'Toolsqa.jpg';
+    ] = formsPage.AutomationPracticeFormElements.ImagePathName;
   }
 
   const FirstName = data[1][0];
@@ -270,6 +259,7 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     );
   }
 
+  // Save student name for next validation
   this.practiceFormInputFields.data[
     formsPage.AutomationPracticeFormInputFieldNames.StudentName
   ] = `${FirstName} ${LastName}`;
@@ -317,29 +307,35 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     );
   }
 
-  const DateOfBirth = data[1][5];
-  const MounOfBirth = data[1][6];
-  const YearOfBirth = data[1][7];
-  const BirthData = `${DateOfBirth} ${MounOfBirth},${YearOfBirth}`;
-  if (DateOfBirth && MounOfBirth && YearOfBirth) {
+  const dateOfBirth = data[1][5];
+  const mounOfBirth = data[1][6];
+  const yearOfBirth = data[1][7];
+  const birthData = `${dateOfBirth} ${mounOfBirth},${yearOfBirth}`;
+
+  if (dateOfBirth && mounOfBirth && yearOfBirth) {
     this.practiceFormInputFields.data[
       formsPage.AutomationPracticeFormInputFieldNames.DateOfBirth
-    ] = BirthData;
+    ] = birthData;
 
     await formsPage.waitAndClick(
       formsPage.AutomationPracticeFormElements.DateOfBirth,
     );
-    await testManager.page
-      .locator('select[class=react-datepicker__month-select]')
-      .selectOption(MounOfBirth);
-    await testManager.page
-      .locator('select[class=react-datepicker__year-select]')
-      .selectOption(YearOfBirth);
+
+    await formsPage.selectOptionByClass(
+      formsPage.AutomationPracticeFormElements.datepickerMonthSelectClass,
+      mounOfBirth,
+    );
+
+    await formsPage.selectOptionByClass(
+      formsPage.AutomationPracticeFormElements.datepickerYearSelectClass,
+      yearOfBirth,
+    );
 
     await formsPage.waitAndClick(
-      `.react-datepicker__day.react-datepicker__day--0${DateOfBirth}`,
+      `${formsPage.AutomationPracticeFormElements.datepickerDaySelectLocator}${dateOfBirth}`,
     );
-    testManager.logger.info(`Choose: ${BirthData} in datepicker`);
+
+    testManager.logger.info(`Choose: ${birthData} in datepicker`);
   }
 
   const Subjects = data[1][8];
@@ -411,7 +407,9 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     formsPage.AutomationPracticeFormInputFieldNames.StateAndCity
   ] = `${State} ${City}`;
 
-  const parentSelector = '.mt-4.justify-content-end.row';
+  const parentSelector =
+    formsPage.AutomationPracticeFormElements.SubmitButtonFooterOverlayLocator;
+  const submitId = formsPage.AutomationPracticeFormElements.SubmitButton;
   // Evaluate JavaScript to click the button
   await testManager.page.evaluate((parentSelector) => {
     const parentElement = document.querySelector(parentSelector);
@@ -419,5 +417,5 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     button.dispatchEvent(new MouseEvent('click'));
   }, parentSelector);
 
-  testManager.logger.info('Pressed: #submit button');
+  testManager.logger.info(`Pressed: ${submitId} button`);
 });

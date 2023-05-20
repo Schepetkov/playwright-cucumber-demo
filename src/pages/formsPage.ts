@@ -31,6 +31,13 @@ export default class FormsPage extends BasePage {
     State: '#state',
     City: '#city',
     SubmitButton: '#submit',
+    Picture: '#uploadPicture',
+    ImagePathName: 'Toolsqa.jpg',
+    datepickerMonthSelectClass: 'react-datepicker__month-select',
+    datepickerYearSelectClass: 'react-datepicker__year-select',
+    datepickerDaySelectLocator:
+      '.react-datepicker__day.react-datepicker__day--0',
+    SubmitButtonFooterOverlayLocator: '.mt-4.justify-content-end.row',
   };
 
   async collectPracticeFormTableFilledData() {
@@ -54,5 +61,37 @@ export default class FormsPage extends BasePage {
     }
 
     return data;
+  }
+
+  async hideFooter() {
+    await testManager.page.addStyleTag({
+      content: 'footer, footer span { display: none !important; }',
+    });
+
+    testManager.logger.info('HideFooter()');
+  }
+
+  async closeFooterAd() {
+    await this.page.waitForSelector('#adplus-anchor');
+    await this.page.evaluate(() => {
+      const parentElement = document.querySelector('#adplus-anchor');
+      if (parentElement) {
+        parentElement.remove();
+      }
+    });
+
+    testManager.logger.info('CloseFooterAd()');
+  }
+
+  async uploadPicture() {
+    await this.page.waitForSelector(
+      this.AutomationPracticeFormElements.Picture,
+    );
+    const fileInput = await testManager.page.$(
+      this.AutomationPracticeFormElements.Picture,
+    );
+    await fileInput.setInputFiles(
+      this.AutomationPracticeFormElements.ImagePathName,
+    );
   }
 }
