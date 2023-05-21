@@ -1,5 +1,5 @@
 import { Page } from '@playwright/test';
-import { testManager } from '../hooks/playwright';
+import { testManager } from '../hooks/testManager';
 
 export default class BasePage {
   buttonRole: 'button' = 'button';

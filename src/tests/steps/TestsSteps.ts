@@ -6,7 +6,7 @@ import {
   World,
 } from '@cucumber/cucumber';
 import { ElementHandle, expect, request } from '@playwright/test';
-import { testManager } from '../../hooks/playwright';
+import { testManager } from '../../hooks/testManager';
 import BasePage from '../../pages/basePage';
 import HomePage from '../../pages/homePage';
 import ElementsPage from '../../pages/elementsPage';

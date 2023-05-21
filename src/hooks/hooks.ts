@@ -1,5 +1,5 @@
 import { Before, After, BeforeAll, AfterAll, Status } from '@cucumber/cucumber';
-import { testManager } from './playwright';
+import { testManager } from './testManager';
 import { Browser, BrowserContext } from '@playwright/test';
 import { invokeBrowser } from '../helper/browsers/browserManager';
 import { getEnv } from '../helper/env/env';
