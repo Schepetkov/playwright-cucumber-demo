@@ -12,6 +12,7 @@ import HomePage from '../../pages/homePage';
 import ElementsPage from '../../pages/elementsPage';
 import FormsPage from '../../pages/formsPage';
 import WidgetsPage from '../../pages/widgetsPage';
+import axios from 'axios';
 
 setDefaultTimeout(60 * 1000);
 
@@ -211,8 +212,6 @@ Then('Enter below inupt field', async function (dataTable: DataTable) {
 Then('Validate user data in web table', async function () {
   const elementsPage = new ElementsPage(testManager.page);
   const cellElements = await elementsPage.GetLastCreatedDataInWebTables();
-
-  //const cellsTest = elementsPage.extractNonEmptyCellTexts(cellElements);
   // TODO: move to separate function
   let cellsTest = [];
   for (const cellElement of cellElements) {
@@ -273,7 +272,9 @@ Then('Validate changed user data in web table', async function () {
   expect(cellsTest[0]).toContain(this.userInupt.firstName);
   expect(cellsTest[1]).toContain(this.userInupt.lastName);
 
-  testManager.logger.info('Validate changed user data in web table');
+  testManager.logger.info(
+    `Validate changed user data in web table() - firstName: ${this.userInupt.firstName},  lastName: ${this.userInupt.lastName}`,
+  );
 });
 
 Then('Validate image is not broken', async function () {
@@ -489,11 +490,66 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     formsPage.PageElements.SubmitButtonFooterOverlayLocator;
   const submitId = formsPage.PageElements.SubmitButton;
   // Evaluate JavaScript to click the button
-  await testManager.page.evaluate((parentSelector) => {
-    const parentElement = document.querySelector(parentSelector);
-    const button = parentElement.querySelector('#submit');
-    button.dispatchEvent(new MouseEvent('click'));
-  }, parentSelector);
+  await testManager.page.evaluate(
+    ({ parentSelector, submitId }) => {
+      const parentElement = document.querySelector(parentSelector);
+      const button = parentElement.querySelector(submitId);
+      button.dispatchEvent(new MouseEvent('click'));
+    },
+    { parentSelector, submitId },
+  );
 
   testManager.logger.info(`pressed: ${submitId} button`);
+});
+
+/* Then(
+  'Send account POST request and validate',
+  async function (dataTable: DataTable) {
+    if (dataTable[1][0] && dataTable[1][1] && dataTable[1][2]) {
+      const url = dataTable[1][0];
+      const userName = dataTable[1][1];
+      const password = dataTable[1][2];
+      const requestBody = {
+        userName: 'Test',
+        password: 'Test112345',
+      };
+
+      const response = await axios.post(url, requestBody);
+      testManager.logger.info(
+        `post => url: ${url}, userName: ${userName}, password: ${password}`,
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.data.token).not.toBeNull();
+      expect(response.data.expires).not.toBeNull();
+      expect(response.data.status).toBe('string');
+      expect(response.data.result).toBe('string');
+    } else {
+      throw new Error(
+        'Send account POST request and validate() - dataTable is not valid!',
+      );
+    }
+  },
+); */
+
+Then('Validate user account response', async function () {});
+
+// TODO: Generate random data via (faker?)
+Then('Send account POST request and validate', async function () {
+  const url = 'https://demoqa.com/Account/v1/User';
+  const requestBody = {
+    userName: 'Test',
+    password: 'Test112345',
+  };
+
+  const response = await axios.post(url, requestBody);
+  // testManager.logger.info(
+  //  `post => url: ${url}, userName: ${userName}, password: ${password}`,
+  //);
+
+  expect(response.status).toBe(200);
+  expect(response.data.token).not.toBeNull();
+  expect(response.data.expires).not.toBeNull();
+  expect(response.data.status).toBe('string');
+  expect(response.data.result).toBe('string');
 });
