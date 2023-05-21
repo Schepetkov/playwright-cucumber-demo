@@ -1,4 +1,5 @@
 import { Page } from '@playwright/test';
+import { testManager } from '../hooks/playwright';
 
 export default class BasePage {
   buttonRole: 'button' = 'button';
@@ -6,6 +7,9 @@ export default class BasePage {
   domcontentloaded: 'domcontentloaded' = 'domcontentloaded';
   visibleState: 'visible' = 'visible';
   tableBodyRows: string = 'tbody tr';
+  adPlusAnchorElement: string = '#adplus-anchor';
+  private FooterHideCSSRule: string =
+    'footer, footer span { display: none !important; }';
 
   constructor(protected page: Page) {
     this.page = page;
@@ -35,5 +39,27 @@ export default class BasePage {
     await this.page
       .locator(`select[class=${classSelector}]`)
       .selectOption(valueOption);
+  }
+
+  async hideFooter() {
+    await testManager.page.addStyleTag({
+      content: this.FooterHideCSSRule,
+    });
+
+    testManager.logger.info('HideFooter()');
+  }
+
+  async closeFooterAd() {
+    await this.page.waitForSelector(this.adPlusAnchorElement);
+
+    const footerAdId = this.adPlusAnchorElement;
+    await this.page.evaluate((footerAdId: string) => {
+      const parentElement = document.querySelector(footerAdId);
+      if (parentElement) {
+        parentElement.remove();
+      }
+    }, footerAdId);
+
+    testManager.logger.info('CloseFooterAd()');
   }
 }

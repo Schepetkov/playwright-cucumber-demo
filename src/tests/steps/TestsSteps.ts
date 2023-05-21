@@ -11,6 +11,7 @@ import BasePage from '../../pages/basePage';
 import HomePage from '../../pages/homePage';
 import ElementsPage from '../../pages/elementsPage';
 import FormsPage from '../../pages/formsPage';
+import WidgetsPage from '../../pages/widgetsPage';
 
 setDefaultTimeout(60 * 1000);
 
@@ -32,23 +33,115 @@ interface CustomWorld extends World {
 
 Given('Go to url', async function () {
   const basePage = new BasePage(testManager.page);
-  await basePage.goto('https://demoqa.com/');
-  testManager.logger.info('I navigate to app');
+  await basePage.goto(process.env.BASEURL);
+  testManager.logger.info(`Go to url: ${process.env.BASEURL}`);
 });
 
 Then('Navigate to {string}', async function (name: string) {
   const homePage = new HomePage(testManager.page);
   await homePage.clickToCardByName(name);
+
+  // It can be in a different place, bugs on website
+  try {
+    await homePage.closeFooterAd();
+  } catch {}
+
+  await homePage.hideFooter();
+
+  testManager.logger.info(`I navigate to ${name}`);
 });
 
 Then('Click on {string}', async function (elementName: string) {
   const elementsPage = new ElementsPage(testManager.page);
   await elementsPage.clickToMenuListItemByName(elementName);
+  testManager.logger.info(`Click on ${elementName}`);
 });
 
 Then('Click on {string} button', async function (buttonName: string) {
   const basePage = new BasePage(testManager.page);
   await basePage.clickToButtonByName(buttonName);
+  testManager.logger.info(`Click on ${buttonName} button`);
+});
+
+Then('Validate darg and drop actions', async function () {
+  const widgetsPage = new WidgetsPage(testManager.page);
+  const classAttributeValue: string = await testManager.page.$eval(
+    widgetsPage.PageElements.DropZoneId,
+    (element) => element.getAttribute('class'),
+  );
+
+  expect(classAttributeValue).toBe(
+    widgetsPage.PageElements.DropZoneClassAttributeValue,
+  );
+  testManager.logger.info('Validate darg and drop actions');
+  testManager.logger.info(`classAttributeValue: ${classAttributeValue}`);
+});
+
+Then('Drag the Drag Me box to Drop Here area', async function () {
+  const widgetsPage = new WidgetsPage(testManager.page);
+  await testManager.page.waitForSelector(
+    widgetsPage.PageElements.DraggableElementId,
+  );
+
+  await testManager.page
+    .locator(widgetsPage.PageElements.DraggableElementId)
+    .dragTo(testManager.page.locator(widgetsPage.PageElements.DropContainer), {
+      sourcePosition: { x: 10, y: 5 },
+    });
+
+  testManager.logger.info('Drag the Drag Me box to Drop Here area');
+});
+
+Then(
+  'Hover on {string} button and validate text tooltip',
+  async function (buttonName: string) {
+    const widgetsPage = new WidgetsPage(testManager.page);
+
+    await testManager.page.waitForSelector(
+      widgetsPage.PageElements.ToolTipButtonId,
+    );
+
+    const button = await testManager.page.$(
+      widgetsPage.PageElements.ToolTipButtonId,
+    );
+    await button.hover();
+    testManager.logger.info(`Hover on ${buttonName} button`);
+
+    await testManager.page.waitForSelector(
+      widgetsPage.PageElements.TooltipElement,
+    );
+
+    const tooltip = await testManager.page.$(
+      widgetsPage.PageElements.TooltipElement,
+    );
+    const tooltipText = await tooltip.innerText();
+
+    expect(tooltipText).toBe(widgetsPage.PageElements.TooltipText);
+    testManager.logger.info(`tooltipText: ${tooltipText}`);
+  },
+);
+
+Then('Validate progress bar', async function () {
+  const widgetsPage = new WidgetsPage(testManager.page);
+
+  await testManager.page.waitForSelector(
+    widgetsPage.PageElements.ProgressBarId,
+  );
+
+  const progressBarId = widgetsPage.PageElements.ProgressBarId;
+  const progressBarElement = widgetsPage.PageElements.ProgressBarElement;
+
+  await testManager.page.waitForFunction(
+    (args) => {
+      const progressBar = document.querySelector(
+        `${args.progressBarId} ${args.progressBarElement}`,
+      ) as HTMLDivElement;
+      return progressBar.style.width === '100%';
+    },
+    { progressBarId, progressBarElement },
+  );
+
+  testManager.logger.info('Validate progress bar');
 });
 
 Then('Enter below inupt field', async function (dataTable: DataTable) {
@@ -159,12 +252,13 @@ Then(
         break;
       }
     }
+    testManager.logger.info(
+      `Click on edit icon in the row of the web table that contains firsname: ${firsName}`,
+    );
   },
 );
 
 Then('Validate changed user data in web table', async function () {
-  const elementsPage = new ElementsPage(testManager.page);
-
   // TODO: move to separate function
   let cellsTest = [];
   for (const cellElement of this.userInupt.curentRow) {
@@ -178,18 +272,22 @@ Then('Validate changed user data in web table', async function () {
   expect(cellsTest.length).toBe(6);
   expect(cellsTest[0]).toContain(this.userInupt.firstName);
   expect(cellsTest[1]).toContain(this.userInupt.lastName);
+
+  testManager.logger.info('Validate changed user data in web table');
 });
 
 Then('Validate image is not broken', async function () {
   const elementsPage = new ElementsPage(testManager.page);
+  const errorMessage = 'Image failed to load';
 
   const imageElement = await testManager.page.$(
     elementsPage.PageElements.BrokenImageElement,
   );
   if (!imageElement) {
-    testManager.logger.info('Image failed to load');
-    throw new Error('Image failed to load!');
+    testManager.logger.info(errorMessage);
+    throw new Error(errorMessage);
   }
+  testManager.logger.info('Validate image is not broken');
 });
 
 Then('Validate data is practice form', async function () {
@@ -220,12 +318,6 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
   }
 
   {
-    // It can be in a different place, bugs on website
-    try {
-      await formsPage.closeFooterAd();
-    } catch {}
-
-    await formsPage.hideFooter();
     await formsPage.uploadPicture();
 
     // Save Image for next validation
@@ -327,6 +419,8 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
     testManager.logger.info(`choose: ${birthData} in datepicker`);
   }
 
+  // TODO: find a solution
+  // Didn't work in headless mode,
   const subjects = data[1][8];
   if (subjects) {
     this.practiceFormInputFields.data[

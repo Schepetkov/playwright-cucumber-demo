@@ -3,9 +3,6 @@ import BasePage from './basePage';
 import { testManager } from '../hooks/playwright';
 
 export default class FormsPage extends BasePage {
-  private FooterHideCSSRule: string =
-    'footer, footer span { display: none !important; }';
-
   constructor(protected page: Page) {
     super(page);
   }
@@ -42,7 +39,6 @@ export default class FormsPage extends BasePage {
       '.react-datepicker__day.react-datepicker__day--0',
     SubmitButtonFooterOverlayLocator: '.mt-4.justify-content-end.row',
     ResponsiveTableLocator: '.table-responsive table',
-    AdPlusAnchorElement: '#adplus-anchor',
   };
 
   async collectPracticeFormTableFilledData() {
@@ -66,28 +62,6 @@ export default class FormsPage extends BasePage {
     }
 
     return data;
-  }
-
-  async hideFooter() {
-    await testManager.page.addStyleTag({
-      content: this.FooterHideCSSRule,
-    });
-
-    testManager.logger.info('HideFooter()');
-  }
-
-  async closeFooterAd() {
-    await this.page.waitForSelector(this.PageElements.AdPlusAnchorElement);
-
-    const footerAdId = this.PageElements.AdPlusAnchorElement;
-    await this.page.evaluate((footerAdId: string) => {
-      const parentElement = document.querySelector(footerAdId);
-      if (parentElement) {
-        parentElement.remove();
-      }
-    }, footerAdId);
-
-    testManager.logger.info('CloseFooterAd()');
   }
 
   async uploadPicture() {
