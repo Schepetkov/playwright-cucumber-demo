@@ -18,6 +18,6 @@ Feature: TC01
         Then Click on edit icon in the row of the web table that contains firsname 'Alden'
         Then Enter below inupt field
             | First Name | Last Name |
-            | Gerimedica | BV        |
+            | Test       | BV        |
         Then Click on 'Submit' button
         And Validate changed user data in web table

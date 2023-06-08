@@ -1,6 +1,5 @@
 import { ElementHandle, Page } from '@playwright/test';
 import BasePage from './basePage';
-import { testManager } from '../hooks/testManager';
 
 export default class ElementsPage extends BasePage {
   constructor(protected page: Page) {

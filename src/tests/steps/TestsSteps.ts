@@ -45,7 +45,7 @@ Then('Navigate to {string}', async function (name: string) {
   // It can be in a different place, bugs on website
   try {
     await homePage.closeFooterAd();
-  } catch {}
+  } catch { }
 
   await homePage.hideFooter();
 
@@ -300,10 +300,10 @@ Then('Validate data is practice form', async function () {
     const value = practiceFormData[key];
 
     testManager.logger.info(
-      `Then Validate data is practice form: - ${this.practiceFormInputFields.data[key]} == ${value}`,
+      `Then Validate data is practice form: - ${value} = ${this.practiceFormInputFields.data[key]}`,
     );
 
-    expect(this.practiceFormInputFields.data[key]).toBe(value);
+    expect(value).toBe(this.practiceFormInputFields.data[key]);
   }
 });
 
@@ -471,7 +471,7 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
       .click();
 
     testManager.logger.info(
-      `choose: ${state} in ${formsPage.PageElements.StateInput}}`,
+      `choose: ${state} in ${formsPage.PageElements.StateInput}`,
     );
   }
 
@@ -532,7 +532,7 @@ Then('Enter data in practice form', async function (dataTable: DataTable) {
   },
 ); */
 
-Then('Validate user account response', async function () {});
+Then('Validate user account response', async function () { });
 
 // TODO: Generate random data via (faker?)
 Then('Send account POST request and validate', async function () {
